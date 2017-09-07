@@ -1,10 +1,13 @@
  #!/bin/bash
 
-#Failed password OR invalid user
-# grep secure -e "Failed password\|Invalid user" does some stuff
-# > failed_login_data.txt
+cd $1
 
-#  grep -e \^\.\*"Failed password"\.\*\$ -o * | awk -F":" '{print $2}'
-#  ^ does things better
+cat var/log/* | grep -e \^\.\*"Failed password"\.\*\$ | grep -e \^\.\*"invalid user"\.\*\$ | awk -F" " '{print $1 " " $2 " " $3 " " $11 " " $13}' | awk -F":" '{print $1 " " $3}' | awk -F" " '{print $1 " " $2 " " $3 " " $5 " " $6}' > tmpFile.txt
+#This works for all attempts with invalid users, but not with valid users
 
+cat var/log/* | grep -e \^\.\*"Failed password"\.\*\$ | grep -ve \.\*"invalid user"\.\*\$ | awk -F" " '{print $1 " " $2 " " $3 " " $9 " " $11}' | awk -F":" '{print $1 " " $3}' | awk -F" " '{print $1 " " $2 " " $3 " " $5 " " $6}' > tmpFile2.txt
+
+cat tmpFile.txt tmpFile2.txt > failed_login_data.txt
+
+rm tmpFile.txt tmpFile2.txt
 
